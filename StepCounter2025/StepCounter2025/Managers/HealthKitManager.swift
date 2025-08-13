@@ -36,3 +36,35 @@ class HealthKitManager {
     }
 }
 
+extension HealthKitManager {
+    func fetchWeeklySteps(completion: @escaping ([StepData]) -> Void) {
+        let now = Date()
+        let calendar = Calendar.current
+        guard let startDate = calendar.date(byAdding: .day, value: -6, to: calendar.startOfDay(for: now)) else { return }
+
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: now, options: .strictStartDate)
+        var interval = DateComponents()
+        interval.day = 1
+
+        let query = HKStatisticsCollectionQuery(
+            quantityType: stepType,
+            quantitySamplePredicate: predicate,
+            options: .cumulativeSum,
+            anchorDate: calendar.startOfDay(for: now),
+            intervalComponents: interval
+        )
+
+        query.initialResultsHandler = { _, results, _ in
+            var stepDataArray: [StepData] = []
+            results?.enumerateStatistics(from: startDate, to: now) { statistics, _ in
+                let steps = statistics.sumQuantity()?.doubleValue(for: HKUnit.count()) ?? 0
+                stepDataArray.append(StepData(date: statistics.startDate, steps: Int(steps)))
+            }
+            DispatchQueue.main.async {
+                completion(stepDataArray)
+            }
+        }
+
+        healthStore.execute(query)
+    }
+}
