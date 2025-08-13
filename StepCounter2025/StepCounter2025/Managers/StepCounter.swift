@@ -11,15 +11,34 @@ import Observation
 @Observable
 class StepCounter {
     var steps: Int = 0
-    private var manager = StepCounterManager()
-
+    private var motionManager = StepCounterManager()
+    private let healthKitManager = HealthKitManager()
+    
     func start() {
-        manager.startUpdates { [weak self] newSteps in
-            self?.steps = newSteps
+        healthKitManager.requestAuthorization { [weak self] authorized in
+            if authorized {
+                self?.updateStepsFromHealth()
+                self?.startLiveUpdates()
+            } else {
+                print("HealthKit authorization denied.")
+            }
         }
     }
-
+    
+    private func updateStepsFromHealth() {
+        healthKitManager.fetchTodaySteps { [weak self] count in
+            self?.steps = Int(count)
+        }
+    }
+    
+    private func startLiveUpdates() {
+        motionManager.startUpdates { [weak self] liveSteps in
+            // Live step count since app start — merge with HealthKit total
+            self?.updateStepsFromHealth()
+        }
+    }
+    
     func stop() {
-        manager.stopUpdates()
+        motionManager.stopUpdates()
     }
 }
