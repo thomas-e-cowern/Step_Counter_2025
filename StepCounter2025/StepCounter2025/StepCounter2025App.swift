@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct StepCounter2025App: App {
+    
+    @State private var newStepGoal: Int = 10000
+    
     var body: some Scene {
         WindowGroup {
-            StepCounterView()
+            StepCounterView(stepGoal: $newStepGoal)
         }
     }
 }
