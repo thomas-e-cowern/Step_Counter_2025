@@ -11,6 +11,8 @@ import Observation
 @Observable
 class StepCounter {
     var steps: Int = 0
+    var weeklySteps: [StepData] = []
+    
     private var motionManager = StepCounterManager()
     private let healthKitManager = HealthKitManager()
     
@@ -18,6 +20,7 @@ class StepCounter {
         healthKitManager.requestAuthorization { [weak self] authorized in
             if authorized {
                 self?.updateStepsFromHealth()
+                self?.updateWeeklySteps()
                 self?.startLiveUpdates()
             } else {
                 print("HealthKit authorization denied.")
@@ -28,6 +31,12 @@ class StepCounter {
     private func updateStepsFromHealth() {
         healthKitManager.fetchTodaySteps { [weak self] count in
             self?.steps = Int(count)
+        }
+    }
+    
+    private func updateWeeklySteps() {
+        healthKitManager.fetchWeeklySteps { [weak self] data in
+            self?.weeklySteps = data
         }
     }
     
