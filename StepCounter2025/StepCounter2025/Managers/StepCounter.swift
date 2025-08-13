@@ -9,7 +9,7 @@ import SwiftUI
 import Observation
 
 @Observable
-class StepCounterViewModel {
+class StepCounter {
     var steps: Int = 0
     private var manager = StepCounterManager()
 
