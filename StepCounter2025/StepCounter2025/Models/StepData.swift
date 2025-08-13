@@ -7,8 +7,14 @@
 
 import Foundation
 
-struct StepData: Identifiable {
-    let id = UUID()
+//struct StepData: Identifiable {
+//    let id = UUID()
+//    let date: Date
+//    let steps: Int
+//}
+
+struct StepData: Identifiable, Equatable {
     let date: Date
     let steps: Int
+    var id: Date { date }
 }
