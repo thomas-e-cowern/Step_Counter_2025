@@ -8,28 +8,26 @@
 import SwiftUI
 
 struct GoalEditorView: View {
-    
-    @State var store: StepDataStore
-    
-    var date: Date
-    @State private var goalText = ""
     @Environment(\.dismiss) var dismiss
-
+    @State var store: StepDataStore
+    @State private var newGoal: Int = 8000
+    
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("Daily Step Goal")) {
-                    TextField("Enter goal", text: $goalText)
-                        .keyboardType(.numberPad)
-                }
+                Stepper("Daily Goal: \(newGoal)", value: $newGoal, in: 1000...20000, step: 500)
             }
-            .navigationTitle("Edit Goal")
+            .navigationTitle("Set Goal")
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        if let goal = Int(goalText) {
-                            store.updateGoal(for: date, to: goal)
+                        let today = Date()
+                        for index in store.weeklySteps.indices {
+                            if store.weeklySteps[index].date >= Calendar.current.startOfDay(for: today) {
+                                store.weeklySteps[index].goal = newGoal
+                            }
                         }
+                        store.save()
                         dismiss()
                     }
                 }
@@ -37,15 +35,10 @@ struct GoalEditorView: View {
                     Button("Cancel") { dismiss() }
                 }
             }
-            .onAppear {
-                if let day = store.weeklySteps.first(where: { Calendar.current.isDate($0.date, inSameDayAs: date) }) {
-                    goalText = "\(day.goal)"
-                }
-            }
         }
     }
 }
 
-#Preview {
-    GoalEditorView(store: <#StepDataStore#>, date: <#Date#>)
-}
+//#Preview {
+//    GoalEditorView(store: <#StepDataStore#>, date: <#Date#>)
+//}
