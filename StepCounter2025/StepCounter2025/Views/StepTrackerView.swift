@@ -1,0 +1,62 @@
+import SwiftUI
+import SwiftData
+
+struct StepTrackerView: View {
+    @Environment(\.modelContext) private var modelContext
+    @State private var store: StepDataStore
+    @State private var showGoalEditor = false
+    
+    init(modelContext: ModelContext) {
+        _store = State(wrappedValue: StepDataStore(modelContext: modelContext))
+    }
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 20) {
+                
+                // Today's Steps Ring
+                if let todayData = store.weeklySteps.first(where: { Calendar.current.isDateInToday($0.date) }) {
+                    let progress = min(Double(todayData.steps) / Double(todayData.goal), 1.0)
+                    
+                    ZStack {
+                        Circle()
+                            .stroke(Color.gray.opacity(0.2), lineWidth: 20)
+                        Circle()
+                            .trim(from: 0, to: progress)
+                            .stroke(progress >= 1 ? Color.green : Color.blue,
+                                    style: StrokeStyle(lineWidth: 20, lineCap: .round))
+                            .rotationEffect(.degrees(-90))
+                            .animation(.easeOut, value: progress)
+                        
+                        VStack {
+                            Text("\(todayData.steps)")
+                                .font(.largeTitle)
+                                .bold()
+                            Text("of \(todayData.goal) steps")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .frame(width: 180, height: 180)
+                    .padding(.top)
+                }
+                
+                // Weekly Chart
+                WeeklyStepsChart(store: store)
+                
+                Spacer()
+            }
+            .navigationTitle("Weekly Steps")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Set Goal") {
+                        showGoalEditor = true
+                    }
+                }
+            }
+            .sheet(isPresented: $showGoalEditor) {
+                GoalEditorView(store: store)
+            }
+        }
+    }
+}
