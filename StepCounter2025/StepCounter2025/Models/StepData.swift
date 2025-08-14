@@ -13,8 +13,9 @@ import Foundation
 //    let steps: Int
 //}
 
-struct StepData: Identifiable, Equatable {
-    let date: Date
-    let steps: Int
-    var id: Date { date }
+struct StepData: Identifiable, Codable {
+    var id = UUID()
+    var date: Date
+    var steps: Int
+    var goal: Int
 }
