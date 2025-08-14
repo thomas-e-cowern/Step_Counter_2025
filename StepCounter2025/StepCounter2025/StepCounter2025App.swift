@@ -6,15 +6,21 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct StepCounter2025App: App {
     
-    @State private var newStepGoal: Int = 10000
+    var sharedModelContainer: ModelContainer = {
+            let schema = Schema([DailyStepData.self])
+            let config = ModelConfiguration(schema: schema)
+            return try! ModelContainer(for: schema, configurations: [config])
+        }()
     
     var body: some Scene {
         WindowGroup {
-            StepCounterView(stepGoal: $newStepGoal)
+            StepCounterView()
+                .modelContainer(sharedModelContainer)
         }
     }
 }
