@@ -13,15 +13,14 @@ struct WeeklyStepsChart: View {
                     y: .value("Steps", day.steps)
                 )
                 .foregroundStyle(day.steps >= day.goal ? Color.green : Color.blue)
+                
+                RuleMark(y: .value("Goal", day.goal))
+                    .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
+                    .foregroundStyle(.red)
             }
         }
         .frame(height: 200)
-        .chartXAxis {
-            AxisMarks(values: .stride(by: .day)) { value in
-                if let date = value.as(Date.self) {
-                    AxisValueLabel(format: .dateTime.weekday(.abbreviated))
-                }
-            }
-        }
+        .padding()
+        .accessibilityIdentifier("WeeklyStepsChart") // <— for UI tests
     }
 }
