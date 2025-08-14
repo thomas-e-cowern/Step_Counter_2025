@@ -13,31 +13,30 @@ struct GoalEditorView: View {
     @State private var newGoal: Int = 8000
     
     var body: some View {
-        NavigationView {
-            Form {
-                Stepper("Daily Goal: \(newGoal)", value: $newGoal, in: 1000...20000, step: 500)
-            }
-            .navigationTitle("Set Goal")
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        let today = Date()
-                        for index in store.weeklySteps.indices {
-                            if store.weeklySteps[index].date >= Calendar.current.startOfDay(for: today) {
-                                store.weeklySteps[index].goal = newGoal
-                            }
+            NavigationView {
+                Form {
+                    Stepper("Daily Goal: \(newGoal)", value: $newGoal, in: 1_000...30_000, step: 500)
+                }
+                .navigationTitle("Set Goal")
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Save") {
+                            store.updateGoal(for: Date(), goal: newGoal)
+                            dismiss()
                         }
-                        store.save()
-                        dismiss()
+                    }
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") { dismiss() }
                     }
                 }
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                .onAppear {
+                    if let today = store.weeklySteps.first(where: { Calendar.current.isDateInToday($0.date) }) {
+                        newGoal = today.goal
+                    }
                 }
             }
         }
     }
-}
 
 //#Preview {
 //    GoalEditorView(store: <#StepDataStore#>, date: <#Date#>)
