@@ -15,13 +15,20 @@ class StepDataStore {
     var weeklySteps: [DailyStepData] = []
     private let healthStore = HKHealthStore()
     private let modelContext: ModelContext
+    private let mockData: Bool
     
-    init(modelContext: ModelContext) {
-        self.modelContext = modelContext
-        requestHealthKitAccess()
-        loadData()
-        fetchWeeklySteps()
-    }
+    init(modelContext: ModelContext, mockData: Bool = false) {
+            self.modelContext = modelContext
+            self.mockData = mockData
+
+            if mockData {
+                preloadMockData()
+            } else {
+                requestHealthKitAccess()
+                loadData()
+                fetchWeeklySteps()
+            }
+        }
     
     // MARK: - Load from SwiftData
     func loadData() {
@@ -65,9 +72,9 @@ class StepDataStore {
     
     // MARK: - HealthKit
     private func requestHealthKitAccess() {
-        guard HKHealthStore.isHealthDataAvailable() else { return }
+        guard !mockData, HKHealthStore.isHealthDataAvailable(),
+                      let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) else { return }
         
-        let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount)!
         healthStore.requestAuthorization(toShare: [], read: [stepType]) { success, error in
             if success {
                 self.fetchWeeklySteps()
@@ -76,7 +83,7 @@ class StepDataStore {
     }
     
     private func fetchWeeklySteps() {
-        guard let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) else { return }
+        guard !mockData, let stepType = HKQuantityType.quantityType(forIdentifier: .stepCount) else { return }
         
         let calendar = Calendar.current
         let now = Date()
@@ -106,4 +113,20 @@ class StepDataStore {
         
         healthStore.execute(query)
     }
+    
+    // MARK: - Mock
+        private func preloadMockData() {
+            let cal = Calendar.current
+            let today = cal.startOfDay(for: Date())
+            let data: [DailyStepData] = (0..<7).compactMap { offset in
+                guard let date = cal.date(byAdding: .day, value: -6 + offset, to: today) else { return nil }
+                // Keep goals different per day to verify behavior
+                let steps = [3200, 5400, 8800, 12000, 7600, 10100, 4500][offset]
+                let goal  = [8000, 9000, 10000, 11000, 8000, 12000, 9500][offset]
+                return DailyStepData(date: date, steps: steps, goal: goal)
+            }
+            data.forEach { modelContext.insert($0) }
+            weeklySteps = data
+            save()
+        }
 }
