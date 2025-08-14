@@ -2,28 +2,26 @@ import SwiftUI
 import Charts
 
 struct WeeklyStepsChart: View {
-    let weeklySteps: [StepData]
-    @State private var selectedDay: StepData? = nil
+    @State var store: StepDataStore
+    @State private var selectedDate: Date?
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Weekly Steps")
-                .font(.title2)
-                .fontWeight(.semibold)
-            
-            Chart(weeklySteps, id: \.id) { item in
+        Chart {
+            ForEach(store.weeklySteps, id: \.id) { day in
                 BarMark(
-                    x: .value("Date", item.date, unit: .day),
-                    y: .value("Steps", item.steps)
+                    x: .value("Date", day.date, unit: .day),
+                    y: .value("Steps", day.steps)
                 )
-                .foregroundStyle(.green)
-                .cornerRadius(5)
-                .annotation(position: .automatic, spacing: 4) {
-                    Text("\(item.steps)")
-                        .font(.caption)
+                .foregroundStyle(day.steps >= day.goal ? Color.green : Color.blue)
+            }
+        }
+        .frame(height: 200)
+        .chartXAxis {
+            AxisMarks(values: .stride(by: .day)) { value in
+                if let date = value.as(Date.self) {
+                    AxisValueLabel(format: .dateTime.weekday(.abbreviated))
                 }
             }
-            .frame(height: 200)
         }
     }
 }
