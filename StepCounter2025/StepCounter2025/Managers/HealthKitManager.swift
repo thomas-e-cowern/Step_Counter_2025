@@ -37,7 +37,7 @@ class HealthKitManager {
 }
 
 extension HealthKitManager {
-    func fetchWeeklySteps(completion: @escaping ([StepData]) -> Void) {
+    func fetchWeeklySteps(completion: @escaping ([DailyStepData]) -> Void) {
         let now = Date()
         let calendar = Calendar.current
         guard let startDate = calendar.date(byAdding: .day, value: -6, to: calendar.startOfDay(for: now)) else { return }
@@ -55,10 +55,10 @@ extension HealthKitManager {
         )
 
         query.initialResultsHandler = { _, results, _ in
-            var stepDataArray: [StepData] = []
+            var stepDataArray: [DailyStepData] = []
             results?.enumerateStatistics(from: startDate, to: now) { statistics, _ in
                 let steps = statistics.sumQuantity()?.doubleValue(for: HKUnit.count()) ?? 0
-                stepDataArray.append(StepData(date: statistics.startDate, steps: Int(steps)))
+                stepDataArray.append(DailyStepData(date: statistics.startDate, steps: Int(steps), goal: 0))
             }
             DispatchQueue.main.async {
                 completion(stepDataArray)

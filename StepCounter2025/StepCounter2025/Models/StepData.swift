@@ -6,16 +6,19 @@
 //
 
 import Foundation
+import SwiftData
 
-//struct StepData: Identifiable {
-//    let id = UUID()
-//    let date: Date
-//    let steps: Int
-//}
-
-struct StepData: Identifiable, Codable {
-    var id = UUID()
+@Model
+class DailyStepData {
+    var id: UUID
     var date: Date
     var steps: Int
     var goal: Int
+    
+    init(date: Date, steps: Int, goal: Int) {
+        self.id = UUID()
+        self.date = date
+        self.steps = steps
+        self.goal = goal
+    }
 }

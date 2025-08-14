@@ -11,7 +11,7 @@ import Observation
 @Observable
 class StepCounter {
     var steps: Int = 0
-    var weeklySteps: [StepData] = []
+    var weeklySteps: [DailyStepData] = []
     
     private var motionManager = StepCounterManager()
     private let healthKitManager = HealthKitManager()

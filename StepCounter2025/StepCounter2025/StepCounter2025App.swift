@@ -19,7 +19,7 @@ struct StepCounter2025App: App {
     
     var body: some Scene {
         WindowGroup {
-            StepCounterView()
+            ContentView()
                 .modelContainer(sharedModelContainer)
         }
     }
