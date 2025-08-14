@@ -42,6 +42,8 @@ struct StepTrackerView: View {
                     .padding(.top)
                 }
                 
+                Spacer()
+                
                 // Weekly Chart
                 WeeklyStepsChart(store: store)
                 
