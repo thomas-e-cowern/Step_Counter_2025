@@ -6,8 +6,8 @@ struct StepTrackerView: View {
     @State private var store: StepDataStore
     @State private var showGoalEditor = false
     
-    init(modelContext: ModelContext) {
-        _store = State(wrappedValue: StepDataStore(modelContext: modelContext))
+    init(modelContext: ModelContext, mockData: Bool) {
+        _store = State(wrappedValue: StepDataStore(modelContext: modelContext, mockData: mockData))
     }
     
     var body: some View {
@@ -32,6 +32,7 @@ struct StepTrackerView: View {
                             Text("\(todayData.steps)")
                                 .font(.largeTitle)
                                 .bold()
+                                .accessibilityIdentifier("TodayStepsValue")
                             Text("of \(todayData.goal) steps")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
@@ -52,6 +53,7 @@ struct StepTrackerView: View {
                     Button("Set Goal") {
                         showGoalEditor = true
                     }
+                    .accessibilityIdentifier("SetGoalButton")
                 }
             }
             .sheet(isPresented: $showGoalEditor) {
