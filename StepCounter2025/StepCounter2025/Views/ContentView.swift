@@ -6,18 +6,16 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+        StepTrackerView(modelContext: modelContext)
     }
+    
+    @Environment(\.modelContext) private var modelContext
 }
+
 
 #Preview {
     ContentView()
