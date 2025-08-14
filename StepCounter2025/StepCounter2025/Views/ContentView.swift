@@ -10,7 +10,8 @@ import SwiftData
 
 struct ContentView: View {
     var body: some View {
-        StepTrackerView(modelContext: modelContext)
+//        StepTrackerView(modelContext: modelContext)
+        Text("")
     }
     
     @Environment(\.modelContext) private var modelContext

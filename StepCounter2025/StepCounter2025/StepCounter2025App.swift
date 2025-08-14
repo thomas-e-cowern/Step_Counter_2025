@@ -11,16 +11,27 @@ import SwiftData
 @main
 struct StepCounter2025App: App {
     
-    var sharedModelContainer: ModelContainer = {
+    // In-memory or on-disk container (on-disk for app, in-memory for tests)
+        var sharedModelContainer: ModelContainer = {
             let schema = Schema([DailyStepData.self])
-            let config = ModelConfiguration(schema: schema)
-            return try! ModelContainer(for: schema, configurations: [config])
+            // Default on-disk config for real app
+            return try! ModelContainer(for: schema)
         }()
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .modelContainer(sharedModelContainer)
+            let mockMode = CommandLine.arguments.contains("UI_TEST_MODE")
+            StepTrackerBoot(mockMode: mockMode)
         }
+        .modelContainer(sharedModelContainer)
+    }
+}
+
+struct StepTrackerBoot: View {
+    @Environment(\.modelContext) private var modelContext
+    let mockMode: Bool
+
+    var body: some View {
+        StepTrackerView(modelContext: modelContext, mockData: mockMode)
     }
 }
