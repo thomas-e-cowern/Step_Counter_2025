@@ -9,7 +9,7 @@ import SwiftUI
 import HealthKit
 
 struct WorkoutStepView: View {
-    @StateObject private var workoutManager = WorkoutStepManager()
+    @State private var workoutManager = WorkoutStepManager()
     
     var body: some View {
         VStack(spacing: 30) {
